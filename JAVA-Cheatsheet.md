@@ -1,6 +1,37 @@
 # Java Data Structures & APIs Reference
 
+This document serves as a comprehensive reference for Java data structures, APIs, and related concepts, combining all information from **JAVA-Cheatsheet.md** and **Java_Data_Structures_and_APIs_Reference.markdown** into a single, detailed, and readable Markdown file. All content from both sources is preserved, with additional details and examples added for clarity and completeness.
+
+---
+
+## Table of Contents
+
+1. [Character Class Methods](#character-class-methods)
+2. [Number Conversions](#number-conversions)
+3. [Math Class](#math-class)
+4. [String Methods](#string-methods)
+5. [Arrays](#arrays)
+6. [ArrayList](#arraylist)
+7. [LinkedList](#linkedlist)
+8. [HashSet](#hashset)
+9. [TreeSet](#treeset)
+10. [HashMap](#hashmap)
+11. [TreeMap](#treemap)
+12. [PriorityQueue](#priorityqueue)
+13. [Stack](#stack)
+14. [Queue and Deque](#queue-and-deque)
+15. [Collections Utility Methods](#collections-utility-methods)
+16. [Regular Expressions](#regular-expressions)
+17. [Date and Time (pre-Java 8)](#date-and-time-pre-java-8)
+18. [Custom Data Structure Implementations](#custom-data-structure-implementations)
+19. [Time Complexity Reference](#time-complexity-reference)
+20. [Additional Notes](#additional-notes)
+21. [Conclusion](#conclusion)
+
+---
+
 ## Character Class Methods
+
 ```java
 Character.isDigit('5')      // true
 Character.isLetter('A')     // true
@@ -12,7 +43,32 @@ Character.toUpperCase('a')  // 'A'
 Character.toString('A')     // "A"
 ```
 
+**Additional Notes:**
+
+- `Character.isDigit(char c)`: Determines if the specified character is a digit.
+- `Character.isLetter(char c)`: Determines if the specified character is a letter.
+- `Character.isLetterOrDigit(char c)`: Determines if the specified character is a letter or digit.
+- `Character.isUpperCase(char c)`: Determines if the specified character is uppercase.
+- `Character.isLowerCase(char c)`: Determines if the specified character is lowercase.
+- `Character.toLowerCase(char c)`: Converts the character to lowercase.
+- `Character.toUpperCase(char c)`: Converts the character to uppercase.
+- `Character.toString(char c)`: Returns a String object representing the specified character.
+
+**Handling Unicode Characters:**
+
+- These methods handle Unicode characters correctly, not just ASCII.
+
+**Example:**
+
+```java
+Character.isDigit('①'); // false, as '①' is a circled digit one, not a standard digit
+Character.isLetter('π'); // true, Greek letter pi is considered a letter
+```
+
+---
+
 ## Number Conversions
+
 ```java
 // String to numeric
 int num = Integer.parseInt("123");    // 123
@@ -38,7 +94,45 @@ String result = new BigInteger("1010", 2)
     .toString(2);  // "11001"
 ```
 
+**Additional Notes:**
+
+- `Integer.parseInt(String s, int radix)`: Parses the string as a signed integer in the specified radix (e.g., 2 for binary, 16 for hexadecimal).
+- `Integer.toBinaryString(int i)`: Returns a string representation of the integer in base 2.
+- `BigInteger`: Useful for arbitrary-precision integers and operations on large numbers.
+
+**Example: Adding Two Binary Strings**
+
+```java
+String a = "1010";
+String b = "1111";
+String sum = new BigInteger(a, 2).add(new BigInteger(b, 2)).toString(2);  // "11001"
+```
+
+**Error Handling:**
+
+- `NumberFormatException` is thrown if the string does not contain a parsable number.
+
+**Example:**
+
+```java
+try {
+    int num = Integer.parseInt("abc");
+} catch (NumberFormatException e) {
+    System.out.println("Invalid number format");
+}
+```
+
+**Additional Example: Octal Conversion**
+
+```java
+int octToInt = Integer.parseInt("777", 8);  // 511
+String intToOct = Integer.toOctalString(511); // "777"
+```
+
+---
+
 ## Math Class
+
 ```java
 Math.max(5, 10);           // 10
 Math.min(5, 10);           // 5
@@ -55,7 +149,44 @@ int random = (int)(Math.random() * 100); // random between 0-99
 int digits = (int) Math.log10(num) + 1;
 ```
 
+**Examples of Math.sqrt:**
+
+```java
+Math.sqrt(16);    // 4.0
+Math.sqrt(2);     // 1.4142135623730951
+Math.sqrt(0);     // 0.0
+Math.sqrt(-4);    // NaN
+Math.sqrt(25.5);  // 5.049752469181039
+```
+
+**Additional Math Methods:**
+
+- `Math.sin(double a)`: Returns the sine of an angle (in radians).
+- `Math.cos(double a)`: Returns the cosine of an angle.
+- `Math.tan(double a)`: Returns the tangent of an angle.
+
+**Example:**
+
+```java
+double angle = Math.PI / 4; // 45 degrees in radians
+double sine = Math.sin(angle); // 0.7071067811865475
+double cosine = Math.cos(angle); // 0.7071067811865476
+double tangent = Math.tan(angle); // 1.0
+```
+
+**Practical Application:**
+
+- Generate a random integer within a specific range:
+
+```java
+int min = 5, max = 15;
+int randomInRange = min + (int)(Math.random() * (max - min + 1)); // Random between 5-15
+```
+
+---
+
 ## String Methods
+
 ```java
 String s = "Hello World";
 int length = s.length();        // 11
@@ -106,7 +237,47 @@ sb.reverse();                   // "dlroW olleH"
 sb.setCharAt(0, 'h');           // "hlroW olleH"
 ```
 
+**Additional Notes on String.split:**
+
+- The `limit` parameter controls the number of splits:
+  - `limit = -1`: Splits into all possible substrings, including trailing empty strings.
+  - `limit = 0`: Splits into all possible substrings, discarding trailing empty strings.
+  - `limit > 0`: Limits the number of splits to `limit`.
+
+**Example:**
+
+```java
+String s = "a,b,c,";
+String[] arr1 = s.split(",", -1); // ["a", "b", "c", ""]
+String[] arr2 = s.split(",", 0);  // ["a", "b", "c"]
+String[] arr3 = s.split(",", 2);  // ["a", "b,c,"]
+```
+
+- For special characters, escape them or use `Pattern.quote()`:
+
+```java
+String[] parts = "a.b.c".split("\\."); // ["a", "b", "c"]
+String[] parts2 = "a.b.c".split(Pattern.quote(".")); // ["a", "b", "c"]
+```
+
+**Performance Tip:**
+
+- Use `StringBuilder` for efficient string concatenation in loops to avoid creating multiple immutable strings.
+
+**Example:**
+
+```java
+StringBuilder sb = new StringBuilder();
+for (int i = 0; i < 1000; i++) {
+    sb.append(i).append(",");
+}
+String result = sb.toString(); // "0,1,2,...,999,"
+```
+
+---
+
 ## Arrays
+
 ```java
 // Declaration and initialization
 int[] numbers = new int[5];
@@ -123,7 +294,7 @@ int index = Arrays.binarySearch(numbers, 3);
 
 // Copy arrays
 int[] copied = Arrays.copyOf(numbers, numbers.length);
-int[] partial = Arrays.copyOfRange(numbers, 1, 3); // elements at index 1,2
+int[] partial = Arrays.copyOfRange(numbers, 1, 3); // elements at index 1 and 2
 
 // Fill array
 Arrays.fill(numbers, 0);       // Fill entire array with 0
@@ -139,20 +310,45 @@ String matrixString = Arrays.deepToString(matrix);
 Integer[] nums = {5, 2, 8, 1};
 Arrays.sort(nums, (a, b) -> b - a);  // Sort in descending order
 
-// For primitive arrays need to box first
+// For primitive arrays, box to Integer[] first
 int[] primitives = {5, 2, 8, 1};
 Integer[] boxed = new Integer[primitives.length];
 for (int i = 0; i < primitives.length; i++) {
     boxed[i] = primitives[i];
 }
 Arrays.sort(boxed, Collections.reverseOrder());
+// Unbox back to int[]
+for (int i = 0; i < primitives.length; i++) {
+    primitives[i] = boxed[i];
+}
 
 // Sort 2D array - no boxing needed as int[] is an object
 int[][] points = {{3, 4}, {1, 2}, {5, 0}};
 Arrays.sort(points, (a, b) -> a[0] - b[0]);  // Sort by first element
 ```
 
+**Note on 2D Arrays:**
+
+- Access elements with `matrix[row][col]`.
+- Get number of rows: `matrix.length`
+- Get number of columns: `matrix[0].length`
+
+**Performance Considerations:**
+
+- Arrays are fixed-size, so operations like insertion or deletion require creating new arrays or shifting elements, which can be costly for large arrays.
+
+**Example: Multi-dimensional Arrays**
+
+```java
+int[][][] threeD = new int[2][3][4]; // 2 layers, 3 rows, 4 columns
+threeD[0][1][2] = 5; // Set element at layer 0, row 1, column 2
+System.out.println(Arrays.deepToString(threeD));
+```
+
+---
+
 ## ArrayList
+
 ```java
 import java.util.ArrayList;
 
@@ -181,7 +377,7 @@ for (int i = 0; i < list.size(); i++) { int num = list.get(i); }
 Iterator<Integer> iter = list.iterator();
 while (iter.hasNext()) {
     Integer num = iter.next();
-    if (num == 5) iter.remove(); // Safe removal during iteration
+    if (num % 2 == 0) iter.remove(); // Safe removal during iteration
 }
 
 // Utilities
@@ -197,7 +393,34 @@ Collections.fill(list, 0);                     // Fill with value
 Integer[] array = list.toArray(new Integer[0]);
 ```
 
+**Safe Removal During Iteration:**
+
+```java
+Iterator<Integer> iter = list.iterator();
+while (iter.hasNext()) {
+    Integer num = iter.next();
+    if (num % 2 == 0) {
+        iter.remove(); // Removes even numbers safely
+    }
+}
+```
+
+**Capacity Management:**
+
+- `ArrayList` automatically resizes, but you can set initial capacity to optimize performance:
+
+```java
+ArrayList<Integer> list = new ArrayList<>(100); // Initial capacity of 100
+```
+
+**Comparison with LinkedList:**
+
+- `ArrayList` is better for random access (O(1)), while `LinkedList` is better for frequent insertions/deletions at both ends (O(1)).
+
+---
+
 ## LinkedList
+
 ```java
 import java.util.LinkedList;
 
@@ -226,7 +449,29 @@ linked.push("top");             // Add to head
 String popped = linked.pop();   // Remove & return head
 ```
 
+**Use Cases:**
+
+- Implementing a deque (double-ended queue).
+- Efficient insertion/deletion at both ends.
+
+**Performance:**
+
+- O(1) for add/remove at ends, O(n) for access by index.
+
+**Example: Using LinkedList as a Deque**
+
+```java
+LinkedList<Integer> deque = new LinkedList<>();
+deque.addFirst(1);
+deque.addLast(2);
+System.out.println(deque.pollFirst()); // 1
+System.out.println(deque.pollLast());  // 2
+```
+
+---
+
 ## HashSet
+
 ```java
 import java.util.HashSet;
 
@@ -253,13 +498,34 @@ for (String item : set) { /* process item */ }
 String[] array = set.toArray(new String[0]);
 ```
 
+**Handling Duplicates:**
+
+- `HashSet` automatically handles duplicates; adding an existing element does nothing.
+
+**Hash Collisions:**
+
+- Internally, `HashSet` uses a `HashMap` to store elements, handling collisions with chaining.
+
+**Example: Set Operations**
+
+```java
+HashSet<Integer> set1 = new HashSet<>(Arrays.asList(1, 2, 3));
+HashSet<Integer> set2 = new HashSet<>(Arrays.asList(2, 3, 4));
+set1.addAll(set2);    // Union: [1, 2, 3, 4]
+set1.retainAll(set2); // Intersection: [2, 3]
+set1.removeAll(set2); // Difference: [1]
+```
+
+---
+
 ## TreeSet
+
 ```java
 import java.util.TreeSet;
 
 TreeSet<Integer> treeSet = new TreeSet<>();
 
-// Basic operations (same as HashSet, but maintains sorted order)
+// Basic operations (maintains sorted order)
 treeSet.add(5);
 treeSet.add(1);
 treeSet.add(10);
@@ -281,7 +547,25 @@ SortedSet<Integer> subSet = treeSet.subSet(1, 10); // Range 1 <= e < 10
 NavigableSet<Integer> descending = treeSet.descendingSet();
 ```
 
+**Custom Comparators:**
+
+- `TreeSet` can use a custom comparator for ordering:
+
+```java
+TreeSet<String> set = new TreeSet<>((s1, s2) -> s2.compareTo(s1)); // Descending order
+set.add("apple");
+set.add("banana");
+System.out.println(set); // [banana, apple]
+```
+
+**Red-Black Tree:**
+
+- Internally, `TreeSet` is implemented as a red-black tree, ensuring O(log n) operations.
+
+---
+
 ## HashMap
+
 ```java
 import java.util.HashMap;
 
@@ -320,13 +604,35 @@ while (it.hasNext()) {
 }
 ```
 
+**Load Factor:**
+
+- The load factor determines when the map resizes (default is 0.75).
+
+**Concurrency:**
+
+- `HashMap` is not thread-safe; use `ConcurrentHashMap` for concurrent access.
+
+**Example: Counting Frequencies**
+
+```java
+HashMap<String, Integer> freq = new HashMap<>();
+String[] words = {"apple", "banana", "apple"};
+for (String word : words) {
+    freq.put(word, freq.getOrDefault(word, 0) + 1);
+}
+System.out.println(freq); // {apple=2, banana=1}
+```
+
+---
+
 ## TreeMap
+
 ```java
 import java.util.TreeMap;
 
 TreeMap<String, Integer> treeMap = new TreeMap<>();
 
-// Basic operations (same as HashMap, but maintains sorted key order)
+// Basic operations (maintains sorted key order)
 treeMap.put("banana", 2);
 treeMap.put("apple", 5);
 treeMap.put("cherry", 3);
@@ -349,7 +655,29 @@ SortedMap<String, Integer> tailMap = treeMap.tailMap("banana"); // Keys >= "bana
 SortedMap<String, Integer> subMap = treeMap.subMap("apple", "cherry"); // Range
 ```
 
+**Balancing Mechanism:**
+
+- Like `TreeSet`, `TreeMap` uses a red-black tree to maintain balance.
+
+**Use Cases:**
+
+- When you need a map with sorted keys or navigation based on key order.
+
+**Example: Range Query**
+
+```java
+TreeMap<Integer, String> scores = new TreeMap<>();
+scores.put(90, "A");
+scores.put(85, "B");
+scores.put(95, "A+");
+SortedMap<Integer, String> range = scores.subMap(85, 95);
+System.out.println(range); // {85=B, 90=A}
+```
+
+---
+
 ## PriorityQueue
+
 ```java
 import java.util.PriorityQueue;
 
@@ -381,7 +709,31 @@ while (!minHeap.isEmpty()) {
 }
 ```
 
+**Applications:**
+
+- Dijkstra's algorithm, Huffman coding, and other algorithms requiring priority-based processing.
+
+**Note:**
+
+- `PriorityQueue` does not guarantee order when iterating; use `poll()` to get elements in order.
+
+**Example: Task Class**
+
+```java
+class Task {
+    String name;
+    int priority;
+    Task(String name, int priority) {
+        this.name = name;
+        this.priority = priority;
+    }
+}
+```
+
+---
+
 ## Stack
+
 ```java
 import java.util.Stack;
 
@@ -397,7 +749,32 @@ int size = stack.size();       // Number of elements
 int position = stack.search("first"); // 1-based position from top, -1 if not found
 ```
 
+**Use Cases:**
+
+- Expression evaluation, undo mechanisms, and backtracking algorithms.
+
+**Note:**
+
+- `Stack` extends `Vector`, which is synchronized, so it might be slower than using `Deque` implementations for stack operations.
+
+**Example: Reverse a String**
+
+```java
+Stack<Character> stack = new Stack<>();
+for (char c : "hello".toCharArray()) {
+    stack.push(c);
+}
+StringBuilder reversed = new StringBuilder();
+while (!stack.isEmpty()) {
+    reversed.append(stack.pop());
+}
+System.out.println(reversed); // "olleh"
+```
+
+---
+
 ## Queue and Deque
+
 ```java
 import java.util.Queue;
 import java.util.LinkedList;
@@ -434,7 +811,25 @@ deque.push("top");              // Same as addFirst
 String popped = deque.pop();    // Same as removeFirst
 ```
 
+**Circular Buffers:**
+
+- `ArrayDeque` can be used as a circular buffer by adding and removing from both ends.
+
+**Example:**
+
+```java
+Deque<String> buffer = new ArrayDeque<>(3);
+buffer.addLast("a");
+buffer.addLast("b");
+buffer.addLast("c");
+buffer.addLast("d"); // "a" is removed, buffer now ["b", "c", "d"]
+System.out.println(buffer);
+```
+
+---
+
 ## Collections Utility Methods
+
 ```java
 import java.util.Collections;
 import java.util.List;
@@ -470,11 +865,32 @@ Set<String> singleton = Collections.singleton("one");
 Map<String, Integer> singletonMap = Collections.singletonMap("one", 1);
 List<Integer> emptyList = Collections.emptyList();
 
-// Unmodifiable views (create views that cannot be modified)
+// Unmodifiable views
 List<Integer> unmodifiableList = Collections.unmodifiableList(list);
 ```
 
+**Note:**
+
+- `Collections.sort` works with `List`, not arrays. For arrays, use `Arrays.sort`.
+
+**Practical Example:**
+
+- Using `Collections.binarySearch` after sorting:
+
+```java
+Collections.sort(list);
+int index = Collections.binarySearch(list, 4);
+if (index >= 0) {
+    System.out.println("Found at index " + index);
+} else {
+    System.out.println("Not found, insertion point: " + (-index - 1));
+}
+```
+
+---
+
 ## Regular Expressions
+
 ```java
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -492,7 +908,7 @@ Pattern groupPattern = Pattern.compile("(\\d{3})-(\\d{3})-(\\d{4})");
 Matcher m = groupPattern.matcher("123-456-7890");
 if (m.matches()) {
     String areaCode = m.group(1);    // "123"
-    String exchange = m.group(2);    // "456" 
+    String exchange = m.group(2);    // "456"
     String lineNum = m.group(3);     // "7890"
 }
 
@@ -503,7 +919,30 @@ String result = "date: 2023-05-01".replaceAll("\\d{4}-\\d{2}-\\d{2}", "YYYY-MM-D
 String[] parts = "a,b;c".split("[,;]");  // ["a", "b", "c"]
 ```
 
+**Splitting with Special Characters:**
+
+- Use `\\` to escape special characters or `Pattern.quote()`:
+
+```java
+String[] parts = "a.b.c".split("\\."); // ["a", "b", "c"]
+String[] parts2 = "a.b.c".split(Pattern.quote(".")); // ["a", "b", "c"]
+```
+
+**Performance Tip:**
+
+- Compile patterns once and reuse them for efficiency in loops.
+
+**Example:**
+
+```java
+Pattern pattern = Pattern.compile("\\d+");
+String[] numbers = pattern.split("1a2b3c"); // ["", "a", "b", "c"]
+```
+
+---
+
 ## Date and Time (pre-Java 8)
+
 ```java
 import java.util.Date;
 import java.util.Calendar;
@@ -541,9 +980,29 @@ boolean after = date1.after(date2);
 long diffMs = date2.getTime() - date1.getTime(); // Difference in milliseconds
 ```
 
+**Note:**
+
+- `Calendar.MONTH` is 0-based (January = 0), but `Calendar.DAY_OF_MONTH` is 1-based.
+
+**Modern Alternative:**
+
+- Use `java.time` package in Java 8+ for better date/time handling.
+
+**Example:**
+
+```java
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+LocalDate date = LocalDate.of(2023, 5, 1);
+LocalDateTime dateTime = LocalDateTime.of(2023, 5, 1, 12, 30);
+```
+
+---
+
 ## Custom Data Structure Implementations
 
 ### Custom LinkedList
+
 ```java
 class Node {
     int data;
@@ -584,6 +1043,7 @@ class LinkedList {
 ```
 
 ### Custom DoublyLinkedList
+
 ```java
 class DNode {
     int data;
@@ -617,6 +1077,7 @@ class DoublyLinkedList {
 ```
 
 ### Custom Binary Tree
+
 ```java
 class TreeNode {
     int val;
@@ -659,6 +1120,34 @@ class BinaryTree {
 }
 ```
 
+**Additional Custom Structures:**
+
+- **Trie (Prefix Tree)**: For efficient string searches.
+
+**Example: Simple Trie Node**
+
+```java
+class TrieNode {
+    Map<Character, TrieNode> children = new HashMap<>();
+    boolean isEndOfWord;
+}
+
+class Trie {
+    TrieNode root = new TrieNode();
+    
+    void insert(String word) {
+        TrieNode node = root;
+        for (char c : word.toCharArray()) {
+            node.children.putIfAbsent(c, new TrieNode());
+            node = node.children.get(c);
+        }
+        node.isEndOfWord = true;
+    }
+}
+```
+
+---
+
 ## Time Complexity Reference
 
 ### Data Structure Operations
@@ -673,8 +1162,8 @@ class BinaryTree {
 | TreeSet        | N/A    | O(log n) | O(log n) | O(log n) |
 | PriorityQueue  | O(1)*** | O(n)   | O(log n)  | O(log n) |
 
-* O(1) amortized for add at end, but O(n) for arbitrary position due to shifting
-** O(1) when adding/removing from ends, but O(n) for arbitrary position due to traversal
+* O(1) amortized for add at end, but O(n) for arbitrary position due to shifting  
+** O(1) when adding/removing from ends, but O(n) for arbitrary position due to traversal  
 *** Only for the min/max element
 
 ### Algorithm Complexities
@@ -690,8 +1179,8 @@ class BinaryTree {
 | Heap Sort             | O(n log n)     | O(1)            |
 | BFS (Graph)           | O(V + E)       | O(V)            |
 | DFS (Graph)           | O(V + E)       | O(V)            |
-| Dijkstra's Algorithm  | O(V² + E)      | O(V)            |
-| Prim's Algorithm      | O(V² + E)      | O(V)            |
+| Dijkstra's Algorithm  | O(V²)          | O(V)            |
+| Prim's Algorithm      | O(V²)          | O(V)            |
 | Floyd-Warshall        | O(V³)          | O(V²)           |
 
 * O(n²) worst case for Quick Sort
@@ -705,6 +1194,8 @@ class BinaryTree {
 | Delete            | O(log n)  | O(n)        | O(log n)     |
 | Traversal         | O(n)      | O(n)        | O(n)         |
 
+**Note:** For BST, average case is O(log n), but worst case (skewed tree) is O(n).
+
 ### Dynamic Programming Space-Time Tradeoffs
 
 | Problem Type            | Time Before DP | Time After DP | Space |
@@ -715,3 +1206,93 @@ class BinaryTree {
 | Matrix Chain Multiply   | O(n!)         | O(n³)        | O(n²) |
 | Palindrome Partition    | O(2ⁿ)         | O(n³)        | O(n²) |
 | Egg Drop Problem        | O(2ⁿ)         | O(n·k²)      | O(n·k)|
+
+**Note:** DP memoization reduces time complexity from exponential to polynomial.
+
+---
+
+## Additional Notes
+
+### Modifying Collections During Iteration
+
+- **For-each loop**: Cannot remove elements; can modify mutable objects or replace elements in `List` by tracking index.
+- **Iterator**: Can remove elements using `iterator.remove()`; `ListIterator` can add and set elements.
+
+**Example with Iterator:**
+
+```java
+Iterator<Integer> iter = list.iterator();
+while (iter.hasNext()) {
+    Integer num = iter.next();
+    if (num % 2 == 0) {
+        iter.remove(); // Safely removes even numbers
+    }
+}
+```
+
+**Example with ListIterator:**
+
+```java
+ListIterator<String> listIter = list.listIterator();
+while (listIter.hasNext()) {
+    String s = listIter.next();
+    if (s.equals("A")) {
+        listIter.set("Modified"); // Replaces "A" with "Modified"
+        listIter.add("New");      // Inserts "New" after "Modified"
+    }
+}
+```
+
+### Comparator and Comparable
+
+- **Comparable**: Natural ordering via `compareTo`.
+- **Comparator**: Custom ordering for sort methods.
+
+**Example:**
+
+```java
+class Person implements Comparable<Person> {
+    String name;
+    int age;
+    Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+    public int compareTo(Person other) {
+        return this.name.compareTo(other.name);
+    }
+}
+
+// Custom comparator by age
+Comparator<Person> ageComparator = (p1, p2) -> p1.age - p2.age;
+```
+
+### Thread Safety
+
+- Most collections are not thread-safe. Use `Collections.synchronizedList`, `ConcurrentHashMap`, etc., for concurrent access.
+
+**Example:**
+
+```java
+List<String> syncList = Collections.synchronizedList(new ArrayList<>());
+```
+
+### Serialization
+
+- Many collection classes implement `Serializable`, allowing them to be written to streams.
+
+**Example:**
+
+```java
+try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("list.ser"))) {
+    oos.writeObject(list);
+}
+```
+
+---
+
+## Conclusion
+
+This document provides a comprehensive reference for Java data structures and APIs, combining all content from **JAVA-Cheatsheet.md** and **Java_Data_Structures_and_APIs_Reference.markdown**. It includes detailed explanations, code snippets, and examples to help you understand and use these concepts effectively, with additional details and examples added for enhanced clarity and utility.
+
+---
