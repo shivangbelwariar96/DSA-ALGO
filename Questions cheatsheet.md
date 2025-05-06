@@ -1,3 +1,8 @@
+https://leetcode.com/problems/zigzag-conversion/
+
+
+
+
 | Sr. No. | Problem Name | LeetCode Number | Link | Approach Detail | Trick | Pattern | Time Complexity | Space Complexity | Critical Code Snippet (Java) |
 |---------|--------------|-----------------|------|-----------------|-------|---------|-----------------|------------------|-----------------------------|
 | 1 | Two Sum | 1 | https://leetcode.com/problems/two-sum/ | Use a HashMap to store encountered numbers and their indices. For each element nums[i], check if target - nums[i] (the complement) exists in the map. If yes, return indices. If no, add nums[i] and its index to the map. | HashMap for O(1) complement lookup. | Hash Map | O(n) | O(n) | `if (map.containsKey(complement)) { return new int[] { map.get(complement), i }; } map.put(nums[i], i);` |
