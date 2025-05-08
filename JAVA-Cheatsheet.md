@@ -558,6 +558,46 @@ set.add("banana");
 System.out.println(set); // [banana, apple]
 ```
 
+
+
+# TreeSet.ceiling(E e) and TreeMap.ceilingKey(K key)
+
+## TreeSet.ceiling(E e)
+**Description**:  
+Returns the least element in this set greater than or equal to the given element, or `null` if there is no such element.
+
+**Example**:
+```
+TreeSet<Integer> set = new TreeSet<>(Arrays.asList(1, 3, 6, 10));
+System.out.println(set.ceiling(5));  // Output: 6
+System.out.println(set.ceiling(10)); // Output: 10
+System.out.println(set.ceiling(11)); // Output: null (edge case)
+```
+
+## TreeMap `ceilingKey(K key)`
+
+**Description:**  
+Returns the least key **greater than or equal to** the given key, or `null` if there is no such key.
+
+---
+
+### Example:
+
+java
+```
+TreeMap<Integer, String> map = new TreeMap<>();
+map.put(1, "One");
+map.put(3, "Three");
+map.put(6, "Six");
+
+System.out.println(map.ceilingKey(4)); // Output: 6
+System.out.println(map.ceilingKey(6)); // Output: 6
+System.out.println(map.ceilingKey(7)); // Output: null (edge case)
+```
+
+
+
+
 **Red-Black Tree:**
 
 - Internally, `TreeSet` is implemented as a red-black tree, ensuring O(log n) operations.
