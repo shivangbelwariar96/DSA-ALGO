@@ -1086,7 +1086,7 @@ int a = rand.nextInt(1);  // Always returns 0
 
 // Zero bound will cause exception
 // int b = rand.nextInt(0);  // Throws IllegalArgumentException
-
+```
 
 ---
 
