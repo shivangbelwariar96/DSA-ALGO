@@ -981,6 +981,116 @@ String[] numbers = pattern.split("1a2b3c"); // ["", "a", "b", "c"]
 
 ---
 
+
+# Java Random Number Generation Guide
+
+## Basic Usage
+
+```java
+Random rand = new Random();  // Create a Random object
+
+// Basic random values
+int a = rand.nextInt();      // Any int (positive or negative)
+int b = rand.nextInt(5);     // 0-4 inclusive
+long c = rand.nextLong();    // Any long
+float d = rand.nextFloat();  // 0.0 ≤ d < 1.0
+double e = rand.nextDouble(); // 0.0 ≤ e < 1.0
+double f = rand.nextGaussian(); // Gaussian distribution with mean=0 and std=1
+boolean g = rand.nextBoolean(); // true or false
+```
+
+## Common Range Patterns
+
+### Integer Ranges
+
+```java
+// Random int between 10 (inclusive) and 20 (exclusive)
+int h = 10 + rand.nextInt(10);  // [10, 19]
+
+// Random int between min (inclusive) and max (inclusive)
+int min = 5, max = 15;
+int randomInRange = min + rand.nextInt(max - min + 1);  // [5, 15]
+```
+
+### Floating-Point Ranges
+
+```java
+// Random float between 1.5 and 2.5
+float i = 1.5f + rand.nextFloat() * (2.5f - 1.5f);  // [1.5, 2.5)
+
+// Random double between min and max
+double min = 10.5, max = 20.5;
+double randomDouble = min + rand.nextDouble() * (max - min);  // [min, max)
+```
+
+### Long Ranges
+
+```java
+// Random long between 100 and 200
+long lower = 100L, upper = 200L;
+long j = lower + (Math.abs(rand.nextLong()) % (upper - lower + 1));  // [100, 200]
+
+// Better approach for large ranges (avoids modulo bias)
+long randomLong = lower + (long)(rand.nextDouble() * (upper - lower + 1));
+```
+
+## Character and String Generation
+
+```java
+// Random uppercase letter A-Z
+char k = (char) ('A' + rand.nextInt(26));
+
+// Random lowercase letter a-z
+char l = (char) ('a' + rand.nextInt(26));
+
+// Random alphanumeric string of length 5
+String alphaNum = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+StringBuilder sb = new StringBuilder(5);
+for (int i = 0; i < 5; i++) {
+    sb.append(alphaNum.charAt(rand.nextInt(alphaNum.length())));
+}
+String randomString = sb.toString();
+```
+
+## Array Operations
+
+```java
+// Shuffle an array (Fisher-Yates algorithm)
+int[] arr = {1, 2, 3, 4, 5};
+for (int i = arr.length - 1; i > 0; i--) {
+    int j = rand.nextInt(i + 1);
+    // Swap elements
+    int temp = arr[i]; 
+    arr[i] = arr[j]; 
+    arr[j] = temp;
+}
+
+// Pick a random element from array
+int[] pool = {10, 20, 30, 40, 50};
+int randomPick = pool[rand.nextInt(pool.length)];
+```
+
+## Using java.util.Collections
+
+```java
+// Shuffle a list
+List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);
+Collections.shuffle(numbers, rand);  // Pass Random instance for reproducibility
+```
+
+## Pitfalls to Avoid
+
+```java
+// Limited range can reduce randomness
+int a = rand.nextInt(1);  // Always returns 0
+
+// Zero bound will cause exception
+// int b = rand.nextInt(0);  // Throws IllegalArgumentException
+
+
+---
+
+
 ## Date and Time (pre-Java 8)
 
 ```java
