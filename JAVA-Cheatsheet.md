@@ -79,6 +79,35 @@ long l = Long.parseLong("1234567890"); // 1234567890
 int binToInt = Integer.parseInt("1010", 2);  // 10
 String intToBin = Integer.toBinaryString(10); // "1010"
 
+# Binary Conversion Methods in Java
+
+## Using Built-in Java Methods
+
+```java
+String binary = "1101";
+BigInteger result = new BigInteger(binary, 2); // 13
+
+String binary = "1101";
+int result = Integer.parseInt(binary, 2); 
+
+long result = Long.parseLong(binary, 2);
+
+Integer result = Integer.valueOf(binary, 2);
+
+Long result = Long.valueOf(binary, 2);
+```
+
+## Manual Binary Conversion Implementation
+
+```java
+String binary = "1101";
+int result = 0;
+for (int i = 0; i < binary.length(); i++) {
+    result = result * 2 + Character.getNumericValue(binary.charAt(i));
+}
+```
+
+
 // Other bases
 int hexToInt = Integer.parseInt("1A", 16);   // 26
 String intToHex = Integer.toHexString(26);   // "1a"
