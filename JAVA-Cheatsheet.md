@@ -260,6 +260,277 @@ String[] parts = "a.b.c".split("\\."); // ["a", "b", "c"]
 String[] parts2 = "a.b.c".split(Pattern.quote(".")); // ["a", "b", "c"]
 ```
 
+# Comprehensive Guide to Java String.split()
+
+## Basic Syntax
+
+```java
+public String[] split(String regex)
+public String[] split(String regex, int limit)
+```
+
+## Parameters
+
+- `regex`: A regular expression delimiting the splits
+- `limit`: Controls the number of splits and array length
+
+## The `limit` Parameter Explained
+
+- `limit < 0`: Splits into all possible substrings, including trailing empty strings
+- `limit = 0`: Splits into all possible substrings, discarding trailing empty strings (default behavior)
+- `limit > 0`: Limits the number of splits to `limit-1` (resulting array length will be at most `limit`)
+
+### Examples with Different Limit Values
+
+```java
+String s = "a,b,c,";
+
+String[] arr1 = s.split(",", -1); // ["a", "b", "c", ""]
+String[] arr2 = s.split(",", 0);  // ["a", "b", "c"]
+String[] arr3 = s.split(",", 2);  // ["a", "b,c,"]
+String[] arr4 = s.split(",", 3);  // ["a", "b", "c,"]
+String[] arr5 = s.split(",");     // Same as limit=0: ["a", "b", "c"]
+```
+
+## Handling Special Regex Characters
+
+When splitting by characters that have special meaning in regex:
+
+```java
+// Using backslash to escape special characters
+String[] parts1 = "a.b.c".split("\\.");  // ["a", "b", "c"]
+String[] parts2 = "a|b|c".split("\\|");  // ["a", "b", "c"]
+String[] parts3 = "a(b)c".split("\\("); // ["a", "b)c"]
+
+// Using Pattern.quote() to escape automatically
+import java.util.regex.Pattern;
+String[] parts4 = "a.b.c".split(Pattern.quote(".")); // ["a", "b", "c"]
+String[] parts5 = "a$b$c".split(Pattern.quote("$")); // ["a", "b", "c"]
+```
+
+## Common Regex Patterns for Split
+
+### Whitespace Splitting
+
+```java
+// Split by any whitespace (space, tab, newline)
+String text = "Hello World\tJava\nProgramming";
+String[] words1 = text.split("\\s");      // Splits on single whitespace
+String[] words2 = text.split("\\s+");     // Splits on one or more whitespaces
+String[] words3 = text.split("\\s*");     // Splits on zero or more whitespaces (results in individual characters)
+
+// Split by specific whitespace characters
+String[] words4 = text.split(" ");        // Split only by space
+String[] words5 = text.split("\t");       // Split only by tab
+String[] words6 = text.split("\n");       // Split only by newline
+
+// Using POSIX character class for whitespace
+String[] words7 = text.split("\\p{Space}"); // Equivalent to \s
+```
+
+### Multiple Delimiters
+
+```java
+// Split by multiple different delimiters
+String data = "apple,banana;orange|grape";
+String[] fruits = data.split("[,;|]");  // ["apple", "banana", "orange", "grape"]
+
+// Split by any non-word character
+String sentence = "Hello, World! Java: Programming.";
+String[] words = sentence.split("\\W+"); // ["Hello", "World", "Java", "Programming"]
+
+// Split by character ranges
+String text = "a1b2c3d4";
+String[] parts1 = text.split("[0-9]");  // ["a", "b", "c", "d", ""]
+String[] parts2 = text.split("[a-z]");  // ["", "1", "2", "3", "4"]
+
+// Split by negated character classes
+String mixed = "a:b,c;d";
+String[] parts = mixed.split("[^a-z]");  // ["a", "b", "c", "d"]
+```
+
+### Character Classes
+
+```java
+// Split by digits
+String alphanumeric = "abc123def456";
+String[] parts = alphanumeric.split("\\d+"); // ["abc", "def", ""]
+
+// Split by non-digits
+String mixed = "123abc456def";
+String[] numbers = mixed.split("\\D+"); // ["123", "456", ""]
+
+// Split by word boundaries
+String text = "HelloWorldJava";
+String[] words = text.split("(?=[A-Z])"); // ["", "Hello", "World", "Java"]
+
+// Split by word characters
+String code = "int x = 10;";
+String[] tokens = code.split("\\w+"); // ["", " ", " = ", ";"]
+
+// Split by boundaries between word and non-word characters
+String phrase = "Hello, World!";
+String[] parts = phrase.split("\\b"); // ["", "Hello", ", ", "World", "!"]
+
+// Split by Java identifiers
+String declaration = "int count=0;double average=7.5;";
+String[] vars = declaration.split("\\b(?=\\w+\\s*=)"); // ["int ", "count=0;double ", "average=7.5;"]
+```
+
+### Capturing Groups
+
+```java
+// Using positive lookahead to keep delimiters
+String csv = "a,b,c";
+String[] withCommas = csv.split("(?<=,)"); // ["a,", "b,", "c"]
+
+// Using lookbehind for complex splits
+String data = "key1=value1;key2=value2";
+String[] keyValues = data.split("(?<==)|(?=;)"); // ["key1", "=", "value1", ";", "key2", "=", "value2"]
+
+// Split at positions, keeping the delimiter
+String text = "apple,banana,cherry";
+String[] parts = text.split("(?<=,)|(?=,)"); // ["apple", ",", "banana", ",", "cherry"]
+
+// Split by word boundaries without losing delimiters
+String sentence = "Hello, world!";
+String[] tokens = sentence.split("(?<=\\b)|(?=\\b)"); // Complex tokenization
+```
+
+## Empty Results and Edge Cases
+
+```java
+// Empty string
+String empty = "";
+String[] parts1 = empty.split(",");     // [""]
+String[] parts2 = empty.split(",", -1); // [""]
+
+// Delimiter not found
+String text = "hello";
+String[] parts = text.split(",");       // ["hello"]
+
+// String contains only delimiters
+String delims = "...";
+String[] parts1 = delims.split("\\.");  // [] (empty array)
+String[] parts2 = delims.split("\\.", -1); // ["", "", "", ""]
+```
+
+## Performance Considerations
+
+```java
+// Precompile regex for better performance
+import java.util.regex.Pattern;
+
+Pattern pattern = Pattern.compile(",");
+String data = "a,b,c,d,e,f,g,h,i,j";
+String[] parts = pattern.split(data);  // More efficient for repeated use
+```
+
+## Practical Examples
+
+### CSV Parsing
+
+```java
+String csvLine = "John,Doe,\"New York, NY\",USA";
+
+// Simple split - won't handle quoted fields correctly
+String[] fields1 = csvLine.split(","); // ["John", "Doe", "\"New York", " NY\"", "USA"]
+
+// Better to use dedicated CSV libraries for complex cases
+```
+
+### Parsing Key-Value Pairs
+
+```java
+String config = "key1=value1;key2=value2;key3=value3";
+
+// Two-step split
+String[] pairs = config.split(";");
+for (String pair : pairs) {
+    String[] keyValue = pair.split("=");
+    System.out.println("Key: " + keyValue[0] + ", Value: " + keyValue[1]);
+}
+```
+
+### URL Parsing
+
+```java
+String url = "https://example.com/path?param1=value1&param2=value2";
+String[] parts = url.split("\\?");
+String domain = parts[0]; // "https://example.com/path"
+
+if (parts.length > 1) {
+    String[] queryParams = parts[1].split("&");
+    // ["param1=value1", "param2=value2"]
+}
+```
+
+### Tokenizing Code
+
+```java
+String code = "int x = 10; x += 5; System.out.println(x);";
+String[] statements = code.split(";\\s*");
+// ["int x = 10", "x += 5", "System.out.println(x)", ""]
+```
+
+## Common Pitfalls
+
+### 1. Forgetting to Escape Special Characters
+
+```java
+// Wrong
+String[] parts = "1.2.3".split(".");  // Results in empty array []
+
+// Correct
+String[] parts = "1.2.3".split("\\.");  // ["1", "2", "3"]
+```
+
+### 2. Ignoring Empty Strings
+
+```java
+String data = "a,,b,c,";
+String[] parts1 = data.split(",");    // ["a", "b", "c"]
+String[] parts2 = data.split(",", -1); // ["a", "", "b", "c", ""]
+```
+
+### 3. Using Incorrect Regex Quantifiers
+
+```java
+String text = "a   b     c";
+// Wrong expectation
+String[] parts1 = text.split(" ");  // ["a", "", "", "b", "", "", "", "", "c"]
+
+// Correct approach
+String[] parts2 = text.split("\\s+");  // ["a", "b", "c"]
+```
+
+### 4. Splitting Unicode Characters
+
+```java
+// For Unicode-aware splitting
+String text = "Hello😊World🌍Java⭐";
+String[] parts = text.split("(?U)\\P{L}+");  // ["Hello", "World", "Java"]
+```
+
+## Related String Methods
+
+- `String.join()`: The reverse operation of split
+  ```java
+  String[] parts = {"a", "b", "c"};
+  String joined = String.join(",", parts);  // "a,b,c"
+  ```
+
+- `StringTokenizer`: An alternative (legacy) way to split strings
+  ```java
+  import java.util.StringTokenizer;
+  
+  StringTokenizer st = new StringTokenizer("a:b:c", ":");
+  while (st.hasMoreTokens()) {
+      System.out.println(st.nextToken());
+  }
+  ```
+
+
 **Performance Tip:**
 
 - Use `StringBuilder` for efficient string concatenation in loops to avoid creating multiple immutable strings.
