@@ -30,6 +30,26 @@ This document serves as a comprehensive reference for Java data structures, APIs
 
 ---
 
+# Circular array
+
+| **Concept**                                | **Formula / Trick**                   | **Notes / Use Case**                                      |
+|-------------------------------------------|---------------------------------------|-----------------------------------------------------------|
+| Next index                                 | `(i + 1) % n`                         | Move one step forward                                     |
+| Previous index                             | `(i - 1 + n) % n`                     | Move one step backward                                    |
+| Move forward `k` steps                     | `(i + k) % n`                         | General forward movement                                  |
+| Move backward `k` steps                    | `(i - k + n) % n`                     | General backward movement                                 |
+| Distance forward from `start` to `i`       | `(i - start + n) % n`                | Steps from `start` to `i` in forward direction            |
+| Distance backward from `start` to `i`      | `(start - i + n) % n`                | Steps from `start` to `i` in backward direction           |
+| Check if `i` is between `a` and `b`        | `(i - a + n) % n <= (b - a + n) % n` | Returns true if `i` lies between `a` and `b` circularly   |
+| Circular iteration over full array         | `for (int i = 0; i < n; i++)`        | Use index `(start + i) % n` inside the loop               |
+| Double loop for circular problems          | `for (int i = 0; i < 2 * n; i++)`    | Useful for next greater/monotonic stack problems          |
+| Simulate circular string                   | `s + s`                              | Helps in circular substring search (e.g., `abcab`)        |
+
+
+
+
+---
+
 # Common Pitfalls with Java Data Types
 
 ## Double Pitfalls
