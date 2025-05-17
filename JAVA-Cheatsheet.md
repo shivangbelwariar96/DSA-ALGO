@@ -67,6 +67,281 @@ Character.isLetter('π'); // true, Greek letter pi is considered a letter
 
 ---
 
+# Java Type Conversion Guide
+
+## 1. String ↔ int
+
+### Converting String to int
+```java
+// ✅ Correct
+int i = Integer.parseInt("123");  // Standard way
+int i = Integer.valueOf("123");   // Returns Integer object, autoboxed to int
+
+// ❌ Incorrect
+// int i = "123";  // Error: String cannot be converted to int automatically
+
+// ✅ Special cases
+int i = Integer.parseInt("123", 16);  // Parse as hexadecimal (result: 291)
+int i = Integer.parseInt("+123");     // Handles + sign
+int i = Integer.parseInt("-123");     // Handles negative numbers
+
+// ❌ Watch out!
+// int i = Integer.parseInt("12.5");  // Error: NumberFormatException
+// int i = Integer.parseInt("123f");  // Error: NumberFormatException
+// int i = Integer.parseInt("");      // Error: NumberFormatException
+// int i = Integer.parseInt(null);    // Error: NullPointerException
+```
+
+### Converting int to String
+```java
+// ✅ Correct
+String s = String.valueOf(123);    // Preferred method
+String s = Integer.toString(123);  // Alternative
+String s = "" + 123;               // Works but less efficient
+String s = new Integer(123).toString(); // Works but unnecessary object creation
+
+// ❌ Incorrect
+// String s = 123;  // Error: int cannot be directly assigned to String
+
+// ✅ Special cases
+String s = Integer.toHexString(123);  // Convert to hex (result: "7b")
+String s = Integer.toBinaryString(123);  // Convert to binary
+String s = String.format("%d", 123);  // Using format
+String s = String.format("%04d", 123);  // Padding zeros (result: "0123")
+```
+
+## 2. String ↔ double
+
+### Converting String to double
+```java
+// ✅ Correct
+double d = Double.parseDouble("12.34");  // Standard
+double d = Double.valueOf("12.34");      // Returns Double object, autoboxed
+
+// ❌ Incorrect
+// double d = "12.34";  // Error: String cannot be converted to double
+
+// ✅ Special cases
+double d = Double.parseDouble("12");     // Works with integers (result: 12.0)
+double d = Double.parseDouble("1.2e3");  // Scientific notation (result: 1200.0)
+double d = Double.parseDouble("-0.5");   // Negative numbers
+double d = Double.parseDouble("Infinity"); // Special values
+double d = Double.parseDouble("NaN");    // Not a Number
+
+// ❌ Watch out!
+// double d = Double.parseDouble("12,34");  // Error: Uses '.' not ','
+// double d = Double.parseDouble("12.34f"); // Error: Don't include type suffix
+```
+
+### Converting double to String
+```java
+// ✅ Correct
+String s = String.valueOf(12.34);    // Standard
+String s = Double.toString(12.34);   // Alternative
+String s = "" + 12.34;               // Works but less efficient
+
+// ❌ Incorrect
+// String s = 12.34;  // Error: double cannot be directly assigned to String
+
+// ✅ Formatting options
+String s = String.format("%.2f", 12.34);  // Fixed precision (result: "12.34")
+String s = String.format("%e", 12.34);    // Scientific notation
+String s = new DecimalFormat("#.##").format(12.345);  // Custom format (result: "12.35")
+```
+
+## 3. String ↔ float
+
+### Converting String to float
+```java
+// ✅ Correct
+float f = Float.parseFloat("3.14");
+float f = Float.valueOf("3.14");
+
+// ❌ Incorrect
+// float f = "3.14";  // Error: String cannot be converted to float
+
+// ✅ Special cases
+float f = Float.parseFloat("3.14f");  // 'f' suffix is accepted (unlike Double)
+float f = Float.parseFloat("3");      // Integer strings work too
+```
+
+### Converting float to String
+```java
+// ✅ Correct
+String s = String.valueOf(3.14f);
+String s = Float.toString(3.14f);
+String s = "" + 3.14f;               // Works but less efficient
+
+// ❌ Incorrect
+// String s = 3.14f;  // Error: float cannot be assigned to String
+
+// ✅ Formatting options
+String s = String.format("%.3f", 3.14f);  // With specific precision
+```
+
+## 4. String ↔ char
+
+### Converting String to char
+```java
+// ✅ Correct
+char c = "A".charAt(0);  // Get first character
+char c = "ABC".charAt(2);  // Get character at index (result: 'C')
+
+// ❌ Incorrect
+// char c = "A";  // Error: Cannot assign String to char
+// char c = "ABC";  // Error: Multi-character string can't convert to single char
+
+// ❌ Watch out!
+// char c = "".charAt(0);  // Error: StringIndexOutOfBoundsException
+```
+
+### Converting char to String
+```java
+// ✅ Correct
+String s = String.valueOf('A');
+String s = Character.toString('A');
+String s = "" + 'A';  // Works but less efficient
+
+// ❌ Incorrect
+// String s = 'A';  // Error: char cannot be directly assigned to String
+
+// ✅ Multiple chars to String
+String s = new String(new char[]{'A', 'B', 'C'});  // Create from char array
+```
+
+## 5. int ↔ double/float
+
+### Converting int to double/float
+```java
+// ✅ Correct (Widening conversions - always safe)
+double d = 10;        // Implicit conversion works
+float f = 10;         // int to float is safe
+
+// ✅ Explicit but unnecessary
+double d = (double) 10;  // Cast works but isn't needed
+float f = (float) 10;    // Cast works but isn't needed
+```
+
+### Converting double/float to int
+```java
+// ✅ Correct (Narrowing conversions - require casting)
+int i = (int) 10.5;    // Truncates to 10
+int i = (int) 10.99f;  // Truncates to 10
+
+// ❌ Incorrect
+// int i = 10.5;       // Error: Possible loss of precision
+// int i = 10.5f;      // Error: Possible loss of precision
+
+// ✅ Alternatives
+int i = (int) Math.round(10.5);  // Rounds to 11
+int i = Math.round(10.5f);       // float version returns int directly
+```
+
+### Converting float to double and vice versa
+```java
+// ✅ Correct (float to double is widening)
+double d = 3.14f;         // Implicit conversion works
+double d = (double) 3.14f;  // Explicit cast works but isn't needed
+
+// ✅ Correct (double to float requires cast)
+float f = (float) 3.14;   // Explicit cast required
+
+// ❌ Incorrect
+// float f = 3.14;        // Error: double cannot be converted to float
+```
+
+## 6. int ↔ char
+
+### Converting int to char
+```java
+// ✅ Correct
+char c = (char) 65;  // Explicit cast required unless it's a char literal
+char c = 'A';        // Character literal (ASCII 65)
+
+// ❌ Incorrect
+// char c = 65;      // Error: Possible loss of precision
+// char c = -1;      // Error: Possible loss of precision
+
+// ✅ Special cases
+char c = '\u0041';   // Unicode literal for 'A'
+```
+
+### Converting char to int
+```java
+// ✅ Correct (Widening primitive conversion)
+int i = 'A';         // Result: 65 (ASCII value)
+int i = (int) 'A';   // Explicit cast works but isn't needed
+
+// ✅ Getting numeric value of digit characters
+int digit = Character.getNumericValue('5');  // Result: 5
+int digit = '5' - '0';  // Common trick (result: 5)
+
+// ❌ Watch out!
+// int digit = (int)'5';  // Result: 53 (ASCII value), not 5
+```
+
+## 7. Common Mistakes and Solutions
+
+### Double ↔ String ↔ int Problems
+```java
+// ❌ Mistakes
+// Integer.valueOf(42.5);       // Error: No overload for double
+// Integer.valueOf("42.5");     // Error: NumberFormatException
+// int i = Double.valueOf("42.5").intValue();  // Cumbersome
+
+// ✅ Solutions
+int i = (int) Double.parseDouble("42.5");  // Parse as double then cast to int
+Double d = Double.valueOf("42");  // Works with integer strings
+
+// ❌ More mistakes
+// String s = 42;             // Error: Cannot convert
+// double d = "42.5";         // Error: Cannot convert
+
+// ✅ Solutions
+String s = String.valueOf(42);
+double d = Double.parseDouble("42.5");
+```
+
+### Boxing/Unboxing Issues
+```java
+// ✅ Autoboxing (primitive to wrapper)
+Integer iObj = 100;         // Implicitly converted to Integer
+Double dObj = 3.14;         // double → Double
+
+// ✅ Unboxing (wrapper to primitive)
+int i = new Integer(100);   // Implicitly converted to int
+double d = new Double(3.14);  // Double → double
+
+// ❌ Watch out!
+// Integer iObj = null;
+// int i = iObj;  // Error: NullPointerException when unboxing null
+```
+
+## 8. Summary Table: What Works & How
+
+| From → To | Conversion Method |
+|----------|-------------------|
+| `String` → `int` | `Integer.parseInt(s)` |
+| `String` → `double` | `Double.parseDouble(s)` |
+| `String` → `float` | `Float.parseFloat(s)` |  
+| `String` → `char` | `s.charAt(0)` |
+| `int` → `String` | `String.valueOf(i)` or `Integer.toString(i)` |
+| `double` → `String` | `String.valueOf(d)` or `Double.toString(d)` |
+| `float` → `String` | `String.valueOf(f)` or `Float.toString(f)` |
+| `char` → `String` | `String.valueOf(c)` or `Character.toString(c)` |
+| `char` → `int` | Implicit (`int i = 'A';`) |
+| `int` → `char` | Cast (`char c = (char) i;`) |
+| `double` → `int` | Cast (`int i = (int) d;`) |
+| `float` → `int` | Cast (`int i = (int) f;`) |
+| `int` → `double` | Implicit (`double d = i;`) |
+| `int` → `float` | Implicit (`float f = i;`) |
+| `float` → `double` | Implicit (`double d = f;`) |
+| `double` → `float` | Cast (`float f = (float) d;`) |
+
+
+
+---
+
 ## Number Conversions
 
 ```java
