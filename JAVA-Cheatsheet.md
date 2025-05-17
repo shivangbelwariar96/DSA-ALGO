@@ -30,6 +30,382 @@ This document serves as a comprehensive reference for Java data structures, APIs
 
 ---
 
+# Common Pitfalls with Java Data Types
+
+## Double Pitfalls
+
+### 1. Precision & Equality
+
+```java
+// ❌ PITFALL: Direct equality comparison with doubles
+double a = 0.1 + 0.2;
+double b = 0.3;
+if (a == b) {  // WRONG: This will be false!
+    System.out.println("Equal");
+}
+System.out.println(a);  // Outputs: 0.30000000000000004
+
+// ✅ CORRECT: Use epsilon comparison
+double epsilon = 0.0000001;
+if (Math.abs(a - b) < epsilon) {
+    System.out.println("Equal within tolerance");
+}
+
+// ✅ ALTERNATIVE: Use BigDecimal for precise decimal arithmetic
+BigDecimal x = new BigDecimal("0.1").add(new BigDecimal("0.2"));
+BigDecimal y = new BigDecimal("0.3");
+if (x.compareTo(y) == 0) {  // Exact comparison
+    System.out.println("BigDecimals are equal");
+}
+```
+
+### 2. Division & Infinity
+
+```java
+// ❌ PITFALL: Division by zero
+double result = 1.0 / 0.0;  // No exception! Results in Infinity
+System.out.println(result);  // Outputs: Infinity
+
+// ❌ PITFALL: NaN behavior
+double nan = 0.0 / 0.0;  // Results in NaN
+System.out.println(nan);  // Outputs: NaN
+System.out.println(nan == nan);  // FALSE! NaN is not equal to anything, even itself
+
+// ✅ CORRECT: Check for special values
+if (Double.isInfinite(result)) {
+    System.out.println("Result is infinite");
+}
+if (Double.isNaN(nan)) {
+    System.out.println("Result is NaN");
+}
+```
+
+### 3. Subtractive Cancellation
+
+```java
+// ❌ PITFALL: Loss of precision with subtraction of similar numbers
+double big = 10000000.0;
+double result = (big + 0.1) - big;  // Should be 0.1
+System.out.println(result);  // May not be exactly 0.1
+
+// ✅ CORRECT: Rearrange expressions when possible
+// Or use BigDecimal for critical calculations
+```
+
+## Integer Pitfalls
+
+### 1. Integer Overflow
+
+```java
+// ❌ PITFALL: Integer overflow
+int max = Integer.MAX_VALUE;
+int result = max + 1;  // Silent overflow!
+System.out.println(result);  // Outputs: -2147483648 (negative!)
+
+// ✅ CORRECT: Check for potential overflow
+if (max > Integer.MAX_VALUE - 1) {
+    System.out.println("Operation would overflow");
+    // Handle differently, maybe use long
+}
+
+// ✅ ALTERNATIVE: Use Math.addExact to throw exception on overflow
+try {
+    int sum = Math.addExact(max, 1);
+} catch (ArithmeticException e) {
+    System.out.println("Overflow detected");
+}
+```
+
+### 2. Division & Modulo
+
+```java
+// ❌ PITFALL: Integer division truncates
+int result = 5 / 2;
+System.out.println(result);  // Outputs: 2 (not 2.5)
+
+// ✅ CORRECT: Convert to double before division if decimal result needed
+double properResult = 5.0 / 2;
+System.out.println(properResult);  // Outputs: 2.5
+
+// ❌ PITFALL: Unexpected modulo behavior with negative numbers
+System.out.println(-5 % 2);  // Outputs: -1
+System.out.println(5 % -2);  // Outputs: 1
+
+// ✅ CORRECT: Use Math.floorMod for consistent behavior
+System.out.println(Math.floorMod(-5, 2));  // Outputs: 1
+```
+
+### 3. Parsing Failures
+
+```java
+// ❌ PITFALL: Uncaught NumberFormatException
+String input = "123abc";
+int num = Integer.parseInt(input);  // Throws exception
+
+// ✅ CORRECT: Validate or use try-catch
+try {
+    int num = Integer.parseInt(input);
+} catch (NumberFormatException e) {
+    System.out.println("Invalid number format");
+}
+
+// ✅ ALTERNATIVE: Validate with regex first
+if (input.matches("\\d+")) {
+    int num = Integer.parseInt(input);
+}
+```
+
+## Float Pitfalls
+
+### 1. Precision Loss
+
+```java
+// ❌ PITFALL: Precision loss due to limited bits
+float f = 16777216.0f;
+System.out.println(f + 1.0f);  // Outputs: 16777216.0 (can't represent the +1)
+
+// ✅ CORRECT: Use double for better precision
+double d = 16777216.0;
+System.out.println(d + 1.0);  // Outputs: 16777217.0
+
+// ✅ ALTERNATIVE: Use BigDecimal for critical precision
+```
+
+### 2. Mixed Type Calculations
+
+```java
+// ❌ PITFALL: Implicit conversion can cause precision loss
+float f = 0.1f;
+double d = 0.1;
+System.out.println(f == d);  // FALSE! 0.1f is not exactly equal to 0.1d
+
+// ✅ CORRECT: Convert explicitly when comparing
+System.out.println(Math.abs((double)f - d) < 1e-6);
+```
+
+### 3. Literal Suffixes
+
+```java
+// ❌ PITFALL: Missing 'f' suffix causes double→float conversion
+float f = 3.14;  // Compilation error: double cannot be converted to float
+
+// ✅ CORRECT: Use 'f' suffix for float literals
+float f = 3.14f;
+```
+
+## String Pitfalls
+
+### 1. Equality Comparison
+
+```java
+// ❌ PITFALL: Using == with strings
+String s1 = "hello";
+String s2 = new String("hello");
+if (s1 == s2) {  // FALSE! Compares references, not content
+    System.out.println("Same");
+}
+
+// ✅ CORRECT: Use equals() method
+if (s1.equals(s2)) {  // TRUE
+    System.out.println("Same content");
+}
+```
+
+### 2. String Concatenation in Loops
+
+```java
+// ❌ PITFALL: Inefficient string concatenation
+String result = "";
+for (int i = 0; i < 10000; i++) {
+    result += i;  // Creates a new String object each time
+}
+
+// ✅ CORRECT: Use StringBuilder
+StringBuilder builder = new StringBuilder();
+for (int i = 0; i < 10000; i++) {
+    builder.append(i);
+}
+result = builder.toString();
+```
+
+### 3. Null Handling
+
+```java
+// ❌ PITFALL: NullPointerException
+String str = null;
+if (str.equals("something")) {  // Throws NullPointerException
+    // ...
+}
+
+// ✅ CORRECT: Check for null or reverse the comparison
+if (str != null && str.equals("something")) {
+    // ...
+}
+// OR
+if ("something".equals(str)) {  // Safe even if str is null
+    // ...
+}
+```
+
+### 4. String Immutability
+
+```java
+// ❌ PITFALL: Not understanding immutability
+String str = "hello";
+str.toUpperCase();
+System.out.println(str);  // Still "hello" - original not changed
+
+// ✅ CORRECT: Assign the result
+str = str.toUpperCase();
+System.out.println(str);  // Now "HELLO"
+```
+
+## Character Pitfalls
+
+### 1. Char vs String Confusion
+
+```java
+// ❌ PITFALL: Using quotes incorrectly
+char c = "A";  // WRONG - "A" is a String, not char
+String s = 'A';  // WRONG - 'A' is a char, not String
+
+// ✅ CORRECT: Single quotes for char, double quotes for String
+char c = 'A';
+String s = "A";
+```
+
+### 2. Implicit Type Conversion
+
+```java
+// ❌ PITFALL: Unexpected results with arithmetic
+char c = 'A';
+c = c + 1;  // Compilation error: cannot convert from int to char
+
+// ✅ CORRECT: Use explicit cast
+c = (char)(c + 1);  // 'B'
+
+// ❌ PITFALL: Numeric calculations
+char digit = '5';
+int value = digit;  // value is 53 (ASCII for '5'), not 5
+
+// ✅ CORRECT: Convert digits to int values
+int value = digit - '0';  // Now value is 5
+// OR
+int value = Character.getNumericValue(digit);  // Also 5
+```
+
+### 3. Unicode Issues
+
+```java
+// ❌ PITFALL: Assuming char is always one "character"
+char c = '😀';  // WRONG - Won't compile, emoji requires two char values
+
+// ✅ CORRECT: Use String for Unicode beyond BMP
+String emoji = "😀";  // Works fine
+// For processing, use codePoints():
+emoji.codePoints().forEach(cp -> System.out.printf("U+%04X ", cp));
+```
+
+## Type Pitfalls in Mixed Operations
+
+### 1. Silent Type Promotions
+
+```java
+// ❌ PITFALL: Unexpected type promotion
+byte b1 = 10;
+byte b2 = 20;
+byte sum = b1 + b2;  // Compilation error: int cannot be converted to byte
+
+// ✅ CORRECT: Explicit cast back to byte
+byte sum = (byte)(b1 + b2);
+
+// ❌ PITFALL: char + int = int, not char
+char c = 'A';
+int i = 1;
+char next = c + i;  // Compilation error: int cannot be converted to char
+
+// ✅ CORRECT: Cast back to char
+char next = (char)(c + i);
+```
+
+### 2. Format String Issues
+
+```java
+// ❌ PITFALL: Wrong format specifiers
+double d = 5.12345;
+System.out.printf("%d", d);  // IllegalFormatConversionException: d != double
+
+// ✅ CORRECT: Use matching format specifiers
+System.out.printf("%f", d);  // 5.123450
+System.out.printf("%.2f", d);  // 5.12
+
+// ❌ PITFALL: Missing arguments
+System.out.printf("Value 1: %d, Value 2: %d", 42);  // Missing second argument
+
+// ✅ CORRECT: Provide all arguments
+System.out.printf("Value 1: %d, Value 2: %d", 42, 43);
+```
+
+### 3. Auto-boxing and Unboxing
+
+```java
+// ❌ PITFALL: NullPointerException with auto-unboxing
+Integer i = null;
+int j = i;  // NullPointerException when unboxing null
+
+// ✅ CORRECT: Check for null before unboxing
+if (i != null) {
+    int j = i;
+}
+
+// ❌ PITFALL: Unexpected equality behavior
+Integer a = 127;
+Integer b = 127;
+System.out.println(a == b);  // TRUE - Integer caches small values
+
+Integer c = 1000;
+Integer d = 1000;
+System.out.println(c == d);  // FALSE - Outside cache range (-128 to 127)
+
+// ✅ CORRECT: Always use equals() for wrapper objects
+System.out.println(c.equals(d));  // TRUE
+```
+
+## Best Practices Summary
+
+1. **Floating-point (double/float):**
+   - Never use == for equality comparisons
+   - Check for NaN/Infinity with Double.isNaN/isInfinite
+   - Use BigDecimal for precise decimal arithmetic
+   - Understand limitations in representing exact decimal values
+
+2. **Integers:**
+   - Be aware of overflow in calculations
+   - Use Math.addExact, Math.multiplyExact for safe arithmetic
+   - Remember that division truncates, convert to double if needed
+   - Handle parsing exceptions
+
+3. **Strings:**
+   - Use equals() not == for content comparison
+   - Use StringBuilder for concatenation in loops
+   - Remember strings are immutable
+   - Handle null values defensively
+
+4. **Characters:**
+   - Use single quotes for char literals
+   - Cast results of char arithmetic back to char
+   - Remember the difference between digit characters and numeric values
+   - Use String for Unicode characters beyond BMP
+
+5. **General:**
+   - Understand implicit type conversions
+   - Watch for auto-boxing/unboxing pitfalls
+   - Use proper format specifiers with printf/String.format
+   - Be cautious with wrapper equality (==)
+
+
+---
+
 ## Character Class Methods
 
 ```java
