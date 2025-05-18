@@ -4,32 +4,6 @@ This document serves as a comprehensive reference for Java data structures, APIs
 
 ---
 
-## Table of Contents
-
-1. [Character Class Methods](#character-class-methods)
-2. [Number Conversions](#number-conversions)
-3. [Math Class](#math-class)
-4. [String Methods](#string-methods)
-5. [Arrays](#arrays)
-6. [ArrayList](#arraylist)
-7. [LinkedList](#linkedlist)
-8. [HashSet](#hashset)
-9. [TreeSet](#treeset)
-10. [HashMap](#hashmap)
-11. [TreeMap](#treemap)
-12. [PriorityQueue](#priorityqueue)
-13. [Stack](#stack)
-14. [Queue and Deque](#queue-and-deque)
-15. [Collections Utility Methods](#collections-utility-methods)
-16. [Regular Expressions](#regular-expressions)
-17. [Date and Time (pre-Java 8)](#date-and-time-pre-java-8)
-18. [Custom Data Structure Implementations](#custom-data-structure-implementations)
-19. [Time Complexity Reference](#time-complexity-reference)
-20. [Additional Notes](#additional-notes)
-21. [Conclusion](#conclusion)
-
----
-
 # Circular array
 
 | **Concept**                                | **Formula / Trick**                   | **Notes / Use Case**                                      |
@@ -459,6 +433,191 @@ Character.toString('A')     // "A"
 ```java
 Character.isDigit('①'); // false, as '①' is a circled digit one, not a standard digit
 Character.isLetter('π'); // true, Greek letter pi is considered a letter
+```
+
+---
+
+# Java StringBuilder API Reference
+
+`StringBuilder` is a mutable sequence of characters, providing an efficient way to concatenate and manipulate strings in Java without creating multiple objects.
+
+## Core Methods
+
+### Creation
+
+```java
+// Create empty StringBuilder
+StringBuilder sb1 = new StringBuilder();
+
+// Create with initial capacity
+StringBuilder sb2 = new StringBuilder(100);
+
+// Create with initial content
+StringBuilder sb3 = new StringBuilder("Hello");
+
+// Create from another CharSequence
+CharSequence cs = "World";
+StringBuilder sb4 = new StringBuilder(cs);
+```
+
+### Appending
+
+```java
+StringBuilder sb = new StringBuilder("Hello");
+
+// Append string
+sb.append(" World");  // "Hello World"
+
+// Append primitive types
+sb.append(123);       // "Hello World123"
+sb.append(true);      // "Hello World123true"
+sb.append(3.14f);     // "Hello World123true3.14"
+
+// Append char array
+char[] chars = {'J','a','v','a'};
+sb.append(chars);     // "Hello World123true3.14Java"
+
+// Append char array portion
+sb.append(chars, 0, 2);  // "Hello World123true3.14JavaJa"
+
+// Chain multiple appends
+sb.append(" is ").append("awesome");  // "Hello World123true3.14JavaJa is awesome"
+```
+
+### Inserting
+
+```java
+StringBuilder sb = new StringBuilder("Hello World");
+
+// Insert at specific position (0-indexed)
+sb.insert(5, " Beautiful");  // "Hello Beautiful World"
+
+// Insert primitive types
+sb.insert(0, 123);           // "123Hello Beautiful World"
+sb.insert(3, true);          // "123trueHello Beautiful World"
+
+// Insert char array
+char[] chars = {'J','a','v','a'};
+sb.insert(0, chars);         // "Java123trueHello Beautiful World"
+```
+
+### Deleting
+
+```java
+StringBuilder sb = new StringBuilder("Hello Beautiful World");
+
+// Delete range (inclusive, exclusive)
+sb.delete(5, 16);            // "Hello World"
+
+// Delete single character
+sb.deleteCharAt(5);          // "HelloWorld"
+```
+
+### Replacing
+
+```java
+StringBuilder sb = new StringBuilder("Hello World");
+
+// Replace range with new string
+sb.replace(6, 11, "Java");   // "Hello Java"
+```
+
+### Substring
+
+```java
+StringBuilder sb = new StringBuilder("Hello World");
+
+// Get substring (inclusive, exclusive)
+String sub = sb.substring(0, 5);    // "Hello"
+
+// Get substring from index to end
+String sub2 = sb.substring(6);      // "World"
+```
+
+### Reverse
+
+```java
+StringBuilder sb = new StringBuilder("Hello");
+sb.reverse();   // "olleH"
+```
+
+### Capacity Management
+
+```java
+StringBuilder sb = new StringBuilder();
+
+// Get current capacity
+int cap = sb.capacity();    // Default is usually 16
+
+// Ensure minimum capacity
+sb.ensureCapacity(100);     // Increases capacity if needed
+
+// Trim to size (reduces to current length)
+sb.trimToSize();
+```
+
+### Length and Size
+
+```java
+StringBuilder sb = new StringBuilder("Hello");
+
+// Get current length
+int len = sb.length();      // 5
+
+// Set length (truncates or pads with null chars)
+sb.setLength(3);            // "Hel"
+sb.setLength(10);           // "Hel\0\0\0\0\0\0\0" (null chars)
+```
+
+### Character Access
+
+```java
+StringBuilder sb = new StringBuilder("Hello");
+
+// Get character at position
+char c = sb.charAt(1);      // 'e'
+
+// Set character at position
+sb.setCharAt(0, 'J');       // "Jello"
+
+// Get code point at position
+int cp = sb.codePointAt(0); // Unicode code point for 'J'
+```
+
+### String Conversion
+
+```java
+StringBuilder sb = new StringBuilder("Hello");
+
+// Convert to String
+String str = sb.toString();
+```
+
+## Performance Note
+
+StringBuilder is not synchronized. For thread-safe operations, use StringBuffer instead (with identical API but synchronization overhead).
+
+```java
+// Thread-safe version
+StringBuffer sbuf = new StringBuffer("Hello");
+```
+
+## Common Use Case: Building Delimited List
+
+```java
+String[] items = {"Apple", "Banana", "Cherry"};
+StringBuilder sb = new StringBuilder();
+
+for (int i = 0; i < items.length; i++) {
+    sb.append(items[i]);
+    
+    // Add delimiter except after last item
+    if (i < items.length - 1) {
+        sb.append(", ");
+    }
+}
+
+String result = sb.toString();  // "Apple, Banana, Cherry"
 ```
 
 ---
