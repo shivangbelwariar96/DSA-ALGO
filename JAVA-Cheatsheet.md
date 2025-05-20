@@ -4,6 +4,288 @@ This document serves as a comprehensive reference for Java data structures, APIs
 
 ---
 
+
+# String Conversion in Java: `.toString()` vs `String.valueOf()`
+
+## Primitives (int, float, double, boolean, etc.)
+
+```java
+String.valueOf(42);         // ✓ Works fine, converts to "42"
+String.valueOf(3.14f);      // ✓ Works fine, converts to "3.14"
+String.valueOf(true);       // ✓ Works fine, converts to "true"
+
+42.toString();              // ✗ Won't compile, primitives don't have methods
+3.14f.toString();           // ✗ Won't compile, primitives don't have methods
+true.toString();            // ✗ Won't compile, primitives don't have methods
+
+Integer.toString(42);       // ✓ Alternative static method for int
+Float.toString(3.14f);      // ✓ Alternative static method for float
+```
+
+## Wrapper Classes (Integer, Float, Boolean, etc.)
+
+```java
+Integer num = 42;
+num.toString();             // ✓ Works fine, instance method
+String.valueOf(num);        // ✓ Works fine, unwraps and converts
+
+Integer nullInt = null;
+nullInt.toString();         // ✗ NullPointerException
+String.valueOf(nullInt);    // ✓ Returns "null" (as a string)
+```
+
+## Objects
+
+```java
+Object obj = new Object();
+obj.toString();             // ✓ Works fine, calls object's toString() method
+String.valueOf(obj);        // ✓ Works fine, internally calls obj.toString()
+
+Object nullObj = null;
+nullObj.toString();         // ✗ NullPointerException
+String.valueOf(nullObj);    // ✓ Returns "null" (as a string)
+```
+
+## StringBuilder/StringBuffer
+
+```java
+StringBuilder sb = new StringBuilder("hello");
+sb.toString();              // ✓ Preferred, directly returns the string
+String.valueOf(sb);         // ✓ Works but less efficient (calls toString() internally)
+```
+
+## Arrays
+
+```java
+int[] array = {1, 2, 3};
+array.toString();           // ✗ Wrong result, returns something like "[I@1a2b3c" (memory address)
+String.valueOf(array);      // ✗ Wrong result, also returns memory address
+Arrays.toString(array);     // ✓ Correct way to convert arrays to string
+```
+
+## Null Handling
+
+```java
+String.valueOf(null);       // ✓ Returns "null" (as a string)
+null.toString();            // ✗ NullPointerException
+```
+
+## Best Practices
+
+- Use `String.valueOf()` when the value might be null
+- Use `.toString()` when you're sure the value is not null
+- For primitives, both `String.valueOf()` and wrapper class's static `toString()` methods work well
+- For arrays, always use `Arrays.toString()` or `Arrays.deepToString()`
+- For `StringBuilder`/`StringBuffer`, prefer direct `.toString()`
+
+
+---
+
+# Java Number Parsing and Conversion Guide
+
+This guide covers common methods for parsing strings to numbers and converting between numeric types in Java, including best practices and common pitfalls.
+
+## String to Primitive: Parsing Methods
+
+### Integer (String to int)
+
+```java
+int num1 = Integer.parseInt("123");      // ✓ Returns primitive int (123)
+int num2 = Integer.parseInt("  123  ");  // ✓ Handles whitespace automatically
+int num3 = Integer.parseInt("123.45");   // ✗ NumberFormatException - no decimals allowed
+int num4 = Integer.parseInt("123A");     // ✗ NumberFormatException - no letters allowed
+int num5 = Integer.parseInt(null);       // ✗ NullPointerException
+int num6 = Integer.parseInt("");         // ✗ NumberFormatException - empty string not allowed
+```
+
+### Long (String to long)
+
+```java
+long num1 = Long.parseLong("123");             // ✓ Returns primitive long (123L)
+long num2 = Long.parseLong("9223372036854775807"); // ✓ Max long value
+long num3 = Long.parseLong("9223372036854775808"); // ✗ NumberFormatException - exceeds max value
+```
+
+### Float (String to float)
+
+```java
+float num1 = Float.parseFloat("123.45");    // ✓ Returns primitive float (123.45f)
+float num2 = Float.parseFloat("123");       // ✓ Works with integers too (123.0f)
+float num3 = Float.parseFloat("1.23e2");    // ✓ Works with scientific notation (123.0f)
+float num4 = Float.parseFloat("Infinity");  // ✓ Special value Float.POSITIVE_INFINITY
+float num5 = Float.parseFloat("NaN");       // ✓ Special value Float.NaN (Not a Number)
+```
+
+### Double (String to double)
+
+```java
+double num1 = Double.parseDouble("123.45");   // ✓ Returns primitive double (123.45d)
+double num2 = Double.parseDouble("1.23e10");  // ✓ Works with scientific notation (12300000000.0d)
+```
+
+### Boolean (String to boolean)
+
+```java
+boolean b1 = Boolean.parseBoolean("true");   // ✓ Returns true
+boolean b2 = Boolean.parseBoolean("TRUE");   // ✓ Case insensitive, returns true
+boolean b3 = Boolean.parseBoolean("false");  // ✓ Returns false
+boolean b4 = Boolean.parseBoolean("yes");    // ✓ Returns false (anything besides "true" is false)
+boolean b5 = Boolean.parseBoolean(null);     // ✓ Returns false (doesn't throw exception)
+```
+
+## String to Wrapper: valueOf Methods
+
+### Integer.valueOf()
+
+```java
+Integer num1 = Integer.valueOf("123");    // ✓ Returns Integer object (boxed int)
+Integer num2 = Integer.valueOf(123);      // ✓ Can also convert from primitive
+Integer num3 = Integer.valueOf("123", 8); // ✓ Octal conversion (value = 83)
+Integer num4 = Integer.valueOf(null);     // ✗ NullPointerException
+```
+
+### Long.valueOf()
+
+```java
+Long num1 = Long.valueOf("123");          // ✓ Returns Long object (boxed long)
+Long num2 = Long.valueOf("123", 16);      // ✓ Hex conversion (value = 291)
+```
+
+### Float.valueOf()
+
+```java
+Float num1 = Float.valueOf("123.45");     // ✓ Returns Float object (boxed float)
+Float num2 = Float.valueOf(123.45f);      // ✓ Can also convert from primitive
+```
+
+### Double.valueOf()
+
+```java
+Double num1 = Double.valueOf("123.45");   // ✓ Returns Double object (boxed double)
+```
+
+## Primitive vs Wrapper Differences
+
+```java
+int primitive = 0;                 // Default value is 0
+Integer wrapper = null;            // Can be null
+
+int a = Integer.parseInt("123");   // Returns primitive int
+Integer b = Integer.valueOf("123"); // Returns Integer object
+
+// Auto-boxing and unboxing
+int c = Integer.valueOf("123");    // ✓ Auto-unboxing works
+Integer d = Integer.parseInt("123"); // ✓ Auto-boxing works
+```
+
+## Numeric Type Conversions
+
+### Widening Conversions (No Data Loss)
+
+```java
+byte b = 100;
+short s = b;       // ✓ byte to short - automatic
+int i = s;         // ✓ short to int - automatic
+long l = i;        // ✓ int to long - automatic
+float f = l;       // ✓ long to float - automatic (may lose precision for very large values)
+double d = f;      // ✓ float to double - automatic
+```
+
+### Narrowing Conversions (Potential Data Loss)
+
+```java
+double d = 123.45;
+float f = (float) d;     // ✓ Requires explicit cast, may lose precision
+long l = (long) f;       // ✓ Requires explicit cast, truncates decimal
+int i = (int) l;         // ✓ Requires explicit cast if l > Integer.MAX_VALUE
+short s = (short) i;     // ✓ Requires explicit cast if i > Short.MAX_VALUE
+byte b = (byte) s;       // ✓ Requires explicit cast if s > Byte.MAX_VALUE
+
+int tooLarge = 128;
+byte smallByte = (byte) tooLarge; // ✗ Results in -128 (overflow)
+```
+
+## Common Pitfalls
+
+### Numeric Overflow
+
+```java
+int maxInt = Integer.MAX_VALUE;        // 2147483647
+int overflow = maxInt + 1;             // ✗ Becomes -2147483648 (wraps around)
+
+long safeMath = (long) maxInt + 1;     // ✓ Use wider type to prevent overflow
+```
+
+### Floating Point Precision
+
+```java
+double a = 0.1 + 0.2;                 // ✗ Result is 0.30000000000000004, not exactly 0.3
+boolean isEqual = (a == 0.3);         // ✗ This will be false!
+
+// Correct approach for equality
+boolean isCorrect = Math.abs(a - 0.3) < 0.0000001;  // ✓ Use epsilon for comparison
+```
+
+### Integer Division
+
+```java
+int result1 = 5 / 2;                  // ✗ Result is 2, not 2.5 (truncates decimal)
+double result2 = 5 / 2;               // ✗ Result is still 2.0 (division happens as int first)
+double result3 = 5.0 / 2;             // ✓ Result is 2.5 (one operand is double)
+double result4 = (double) 5 / 2;      // ✓ Result is 2.5 (cast to double first)
+```
+
+### String Formatting and Conversion
+
+```java
+int value = 123;
+String str1 = value + "";             // ✓ Works but not recommended (less efficient)
+String str2 = String.valueOf(value);  // ✓ Better approach
+String str3 = Integer.toString(value); // ✓ Also good
+
+// Formatting with specific format
+String formatted = String.format("%.2f", 123.456);  // ✓ "123.46" (rounded)
+```
+
+### NaN and Infinity
+
+```java
+double result1 = 1.0 / 0.0;           // ✓ Results in Infinity (no exception thrown)
+double result2 = 0.0 / 0.0;           // ✓ Results in NaN (Not a Number)
+
+boolean check1 = (result1 == Double.POSITIVE_INFINITY);  // ✓ True
+boolean check2 = (result2 == Double.NaN);                // ✗ Always false! NaN is not equal to anything
+boolean check3 = Double.isNaN(result2);                  // ✓ Correct way to check for NaN
+```
+
+### Parsing Errors
+
+```java
+try {
+    int value = Integer.parseInt(userInput);  // ✓ Handle potential parsing errors
+} catch (NumberFormatException e) {
+    // Handle invalid input
+}
+```
+
+## Best Practices
+
+1. Always use parsing methods (`parseInt()`, `parseDouble()`) when you need primitive types
+2. Use `valueOf()` methods when you need wrapper objects
+3. Handle potential exceptions when parsing user input
+4. Be careful with type conversions that may cause overflow or precision loss
+5. Use proper comparison techniques for floating-point values
+6. Consider using `BigInteger` and `BigDecimal` for precise calculations with very large numbers
+7. When dividing integers, be explicit about when you want floating-point results
+8. Use `Math.addExact()`, `Math.subtractExact()`, etc. to catch overflow situations
+
+
+---
+
+
+
+---
+
 # Circular array
 
 | **Concept**                                | **Formula / Trick**                   | **Notes / Use Case**                                      |
