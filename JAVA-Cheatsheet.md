@@ -4,6 +4,348 @@ This document serves as a comprehensive reference for Java data structures, APIs
 
 ---
 
+# Java Data Structures - Common Pitfalls & Correct Usage
+
+## 1. List Interface & Implementations
+
+### Return Type Compatibility
+```java
+// ❌ WRONG - Cannot return more specific generic type
+public List<List<Integer>> getMatrix() {
+    return new ArrayList<ArrayList<Integer>>(); // Compilation Error
+}
+
+// ✅ CORRECT - Return compatible type
+public List<List<Integer>> getMatrix() {
+    return new ArrayList<List<Integer>>(); // Works perfectly
+}
+
+// ✅ CORRECT - Alternative with diamond operator
+public List<List<Integer>> getMatrix() {
+    return new ArrayList<>(); // Type inference works
+}
+```
+
+### ArrayList vs List Declaration
+```java
+// ❌ WRONG - Tight coupling to implementation
+ArrayList<String> names = new ArrayList<>(); // Limits flexibility
+
+// ✅ CORRECT - Program to interface
+List<String> names = new ArrayList<>(); // Can switch implementations easily
+```
+
+### Raw Types Usage
+```java
+// ❌ WRONG - Raw type, no type safety
+List list = new ArrayList(); // Compiler warning, runtime ClassCastException risk
+
+// ✅ CORRECT - Parameterized type
+List<String> list = new ArrayList<>(); // Type safe
+```
+
+### Initialization Pitfalls
+```java
+// ❌ WRONG - Null initialization
+List<Integer> numbers = null; // NullPointerException waiting to happen
+
+// ✅ CORRECT - Proper initialization
+List<Integer> numbers = new ArrayList<>(); // Safe to use immediately
+```
+
+## 2. Set Interface & Implementations
+
+### HashSet vs LinkedHashSet vs TreeSet
+```java
+// ❌ WRONG - Using HashSet when order matters
+Set<String> orderedNames = new HashSet<>(); // No guaranteed order
+
+// ✅ CORRECT - Use LinkedHashSet for insertion order
+Set<String> orderedNames = new LinkedHashSet<>(); // Maintains insertion order
+
+// ✅ CORRECT - Use TreeSet for sorted order
+Set<String> sortedNames = new TreeSet<>(); // Natural ordering
+```
+
+### equals() and hashCode() Pitfall
+```java
+// ❌ WRONG - Custom object without proper equals/hashCode
+class Person { String name; } // HashSet won't work correctly
+Set<Person> people = new HashSet<>(); // Duplicates possible
+
+// ✅ CORRECT - Override equals and hashCode
+class Person { 
+    String name; 
+    @Override public boolean equals(Object o) { /* implementation */ }
+    @Override public int hashCode() { /* implementation */ }
+}
+```
+
+## 3. Map Interface & Implementations
+
+### Generic Type Specification
+```java
+// ❌ WRONG - Raw types
+Map map = new HashMap(); // No type safety
+
+// ✅ CORRECT - Proper generics
+Map<String, Integer> scores = new HashMap<>(); // Type safe
+```
+
+### Null Key/Value Handling
+```java
+// ❌ WRONG - Assuming all Maps handle nulls
+Map<String, String> config = new ConcurrentHashMap<>();
+config.put(null, "value"); // Throws NullPointerException
+
+// ✅ CORRECT - Use HashMap for null keys
+Map<String, String> config = new HashMap<>();
+config.put(null, "value"); // Works fine
+```
+
+### Key Mutability Pitfall
+```java
+// ❌ WRONG - Using mutable objects as keys
+List<String> key = new ArrayList<>();
+Map<List<String>, String> map = new HashMap<>();
+map.put(key, "value");
+key.add("item"); // Key changed, value now unreachable!
+
+// ✅ CORRECT - Use immutable keys
+String key = "immutableKey";
+Map<String, String> map = new HashMap<>();
+map.put(key, "value"); // Safe
+```
+
+## 4. Queue Interface & Implementations
+
+### Queue vs Deque
+```java
+// ❌ WRONG - Using wrong interface for double-ended operations
+Queue<Integer> queue = new ArrayDeque<>();
+// queue.addLast(5); // Method doesn't exist in Queue interface
+
+// ✅ CORRECT - Use Deque for double-ended operations
+Deque<Integer> deque = new ArrayDeque<>();
+deque.addLast(5); // Works perfectly
+```
+
+### PriorityQueue Pitfalls
+```java
+// ❌ WRONG - Expecting FIFO behavior
+Queue<Integer> pq = new PriorityQueue<>(); // Actually a heap!
+pq.offer(3); pq.offer(1); pq.offer(2);
+// pq.poll() returns 1, not 3 (min-heap behavior)
+
+// ✅ CORRECT - Understanding heap behavior
+PriorityQueue<Integer> pq = new PriorityQueue<>(); // Min-heap by default
+```
+
+### Null Elements
+```java
+// ❌ WRONG - Adding null to PriorityQueue
+PriorityQueue<String> pq = new PriorityQueue<>();
+pq.offer(null); // Throws NullPointerException
+
+// ✅ CORRECT - Avoid nulls in PriorityQueue
+PriorityQueue<String> pq = new PriorityQueue<>();
+pq.offer("valid"); // Works fine
+```
+
+## 5. Stack vs Deque
+
+### Deprecated Stack Class
+```java
+// ❌ WRONG - Using legacy Stack class
+Stack<Integer> stack = new Stack<>(); // Extends Vector, synchronized overhead
+
+// ✅ CORRECT - Use Deque as stack
+Deque<Integer> stack = new ArrayDeque<>(); // Better performance
+```
+
+## 6. Arrays Utility Pitfalls
+
+### asList() Pitfall
+```java
+// ❌ WRONG - Trying to modify Arrays.asList() result
+List<String> list = Arrays.asList("a", "b", "c");
+list.add("d"); // Throws UnsupportedOperationException
+
+// ✅ CORRECT - Create mutable list
+List<String> list = new ArrayList<>(Arrays.asList("a", "b", "c"));
+list.add("d"); // Works fine
+```
+
+### Primitive Arrays
+```java
+// ❌ WRONG - Arrays.asList with primitive array
+int[] arr = {1, 2, 3};
+List<int[]> list = Arrays.asList(arr); // Creates List<int[]>, not List<Integer>
+
+// ✅ CORRECT - Use wrapper array or streams
+Integer[] arr = {1, 2, 3};
+List<Integer> list = Arrays.asList(arr); // Correct behavior
+```
+
+## 7. Collections Utility Pitfalls
+
+### Unmodifiable vs Immutable
+```java
+// ❌ WRONG - Thinking unmodifiable means immutable
+List<StringBuilder> original = new ArrayList<>();
+original.add(new StringBuilder("test"));
+List<StringBuilder> unmod = Collections.unmodifiableList(original);
+unmod.get(0).append("modified"); // Still modifies the content!
+
+// ✅ CORRECT - Understanding the difference
+// Unmodifiable prevents structural changes, not content changes
+```
+
+### Empty Collections
+```java
+// ❌ WRONG - Creating new empty collections repeatedly
+List<String> empty1 = new ArrayList<>(); // Unnecessary object creation
+List<String> empty2 = new ArrayList<>();
+
+// ✅ CORRECT - Use Collections constants
+List<String> empty1 = Collections.emptyList(); // Singleton, efficient
+List<String> empty2 = Collections.emptyList();
+```
+
+## 8. Iterator Pitfalls
+
+### ConcurrentModificationException
+```java
+// ❌ WRONG - Modifying collection while iterating
+List<String> list = new ArrayList<>(Arrays.asList("a", "b", "c"));
+for (String item : list) {
+    if (item.equals("b")) {
+        list.remove(item); // Throws ConcurrentModificationException
+    }
+}
+
+// ✅ CORRECT - Use iterator's remove method
+List<String> list = new ArrayList<>(Arrays.asList("a", "b", "c"));
+Iterator<String> it = list.iterator();
+while (it.hasNext()) {
+    if (it.next().equals("b")) {
+        it.remove(); // Safe removal
+    }
+}
+```
+
+## 9. Generics Wildcards
+
+### Upper Bounded Wildcards
+```java
+// ❌ WRONG - Cannot add to upper bounded wildcard
+List<? extends Number> numbers = new ArrayList<Integer>();
+numbers.add(5); // Compilation error
+
+// ✅ CORRECT - Can only read from upper bounded wildcards
+List<? extends Number> numbers = new ArrayList<Integer>();
+Number n = numbers.get(0); // Reading is safe
+```
+
+### Lower Bounded Wildcards
+```java
+// ❌ WRONG - Cannot read specific type from lower bounded wildcard
+List<? super Integer> numbers = new ArrayList<Number>();
+Integer i = numbers.get(0); // Compilation error
+
+// ✅ CORRECT - Can add to lower bounded wildcards
+List<? super Integer> numbers = new ArrayList<Number>();
+numbers.add(5); // Adding is safe
+```
+
+## 10. Stream API Pitfalls
+
+### Parallel Streams with Non-Thread-Safe Operations
+```java
+// ❌ WRONG - Using non-thread-safe collection with parallel streams
+List<Integer> result = new ArrayList<>(); // Not thread-safe
+IntStream.range(0, 1000).parallel().forEach(result::add); // Race conditions
+
+// ✅ CORRECT - Use thread-safe operations
+List<Integer> result = IntStream.range(0, 1000)
+    .parallel()
+    .boxed()
+    .collect(Collectors.toList()); // Thread-safe collector
+```
+
+### Stream Reuse
+```java
+// ❌ WRONG - Reusing streams
+Stream<String> stream = list.stream();
+stream.filter(s -> s.length() > 3).collect(Collectors.toList());
+stream.map(String::toUpperCase).collect(Collectors.toList()); // IllegalStateException
+
+// ✅ CORRECT - Create new stream for each operation
+list.stream().filter(s -> s.length() > 3).collect(Collectors.toList());
+list.stream().map(String::toUpperCase).collect(Collectors.toList());
+```
+
+## 11. Memory and Performance Pitfalls
+
+### Initial Capacity
+```java
+// ❌ WRONG - Not specifying capacity when size is known
+List<String> largeList = new ArrayList<>(); // Will resize multiple times
+for (int i = 0; i < 10000; i++) {
+    largeList.add("item" + i);
+}
+
+// ✅ CORRECT - Specify initial capacity
+List<String> largeList = new ArrayList<>(10000); // Avoids resizing
+for (int i = 0; i < 10000; i++) {
+    largeList.add("item" + i);
+}
+```
+
+### String Concatenation in Loops
+```java
+// ❌ WRONG - String concatenation in loop
+String result = "";
+for (int i = 0; i < 1000; i++) {
+    result += "item" + i; // Creates new String objects repeatedly
+}
+
+// ✅ CORRECT - Use StringBuilder
+StringBuilder sb = new StringBuilder();
+for (int i = 0; i < 1000; i++) {
+    sb.append("item").append(i);
+}
+String result = sb.toString();
+```
+
+## 12. Thread Safety Pitfalls
+
+### Synchronized vs Concurrent Collections
+```java
+// ❌ WRONG - Using synchronized wrappers unnecessarily
+List<String> syncList = Collections.synchronizedList(new ArrayList<>());
+// Still need external synchronization for compound operations
+
+// ✅ CORRECT - Use concurrent collections when needed
+List<String> concurrentList = new CopyOnWriteArrayList<>(); // Thread-safe
+Map<String, String> concurrentMap = new ConcurrentHashMap<>(); // Better performance
+```
+
+## Key Takeaways
+
+1. **Always program to interfaces** (List, Set, Map) rather than implementations
+2. **Use proper generics** to ensure type safety
+3. **Understand collection characteristics** (ordering, nulls, thread-safety)
+4. **Be careful with wildcards** in generics
+5. **Don't modify collections during iteration** without using Iterator.remove()
+6. **Consider initial capacity** for better performance
+7. **Use appropriate collection types** for your use case
+8. **Be aware of thread safety** requirements
+9. **Understand the difference** between unmodifiable and immutable
+10. **Use modern alternatives** (Deque instead of Stack, ConcurrentHashMap instead of Hash
+
+---
+
 
 # String Conversion in Java: `.toString()` vs `String.valueOf()`
 
